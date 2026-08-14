@@ -1,1 +1,1 @@
-﻿An ACT plugin to track Reactive heals for Clerics and Templars.
+﻿An ACT plugin to track Reactive heals for Inquisitors and Templars.
