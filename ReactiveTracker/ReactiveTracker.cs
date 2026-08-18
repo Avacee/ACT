@@ -32,6 +32,7 @@ namespace ReactiveTracker
         Button btnShowOverlay;
         Button btnHideOverlay;
         CheckBox chkCoerciveHealing;
+        CheckBox chkEofRaid2Set;
         ComboBox cmbClass;
         ctrlPlayer[] _playerControls;
         private const string playerNameEmpty = "N/A";
@@ -43,7 +44,7 @@ namespace ReactiveTracker
         const string logTimeStampRegexStr = @"\(\d{10}\)\[.{24}\] ";
 
 
-        private int SingleCount => DefaultSingleCount + (chkCoerciveHealing.Checked ? 1 : 0);
+        private int SingleCount => DefaultSingleCount + (chkCoerciveHealing.Checked ? 1 : 0) + (chkEofRaid2Set.Checked && cmbClass.SelectedItem?.ToString() == "Templar" ? 4 : 0);
         private int GroupCount => DefaultGroupCount + (chkCoerciveHealing.Checked ? 1 : 0);
 
         //Create the RegEx once
@@ -87,6 +88,7 @@ namespace ReactiveTracker
 
                 var options = doc.CreateElement("Options");
                 options.SetAttribute("CoerciveHealing", chkCoerciveHealing.Checked.ToString());
+                options.SetAttribute("EofRaid2Set", chkEofRaid2Set.Checked.ToString());
                 options.SetAttribute("Class", cmbClass.SelectedItem?.ToString() ?? "Inquisitor");
                 root.AppendChild(options);
 
@@ -129,6 +131,10 @@ namespace ReactiveTracker
                     var coerciveAttr = optionsNode.Attributes["CoerciveHealing"];
                     if (coerciveAttr != null)
                         chkCoerciveHealing.Checked = bool.Parse(coerciveAttr.Value);
+
+                    var eofRaid2Attr = optionsNode.Attributes["EofRaid2Set"];
+                    if (eofRaid2Attr != null)
+                        chkEofRaid2Set.Checked = bool.Parse(eofRaid2Attr.Value);
 
                     var classAttr = optionsNode.Attributes["Class"];
                     if (classAttr != null && cmbClass.Items.Contains(classAttr.Value))
@@ -196,22 +202,29 @@ namespace ReactiveTracker
             btnHideOverlay.Click += (s, e) => { overlayForm.Hide(); btnShowOverlay.Enabled = true; btnHideOverlay.Enabled = false; };
 
             var gbOverlay = new GroupBox { Text = "Overlay", AutoSize = true, Padding = new Padding(3, 14, 3, 3) };
-            var flowButtons = new FlowLayoutPanel { AutoSize = true, FlowDirection = FlowDirection.LeftToRight };
+            var flowButtons = new FlowLayoutPanel { AutoSize = true, FlowDirection = FlowDirection.LeftToRight, Location = new System.Drawing.Point(3, 16) };
             flowButtons.Controls.Add(btnShowOverlay);
             flowButtons.Controls.Add(btnHideOverlay);
             gbOverlay.Controls.Add(flowButtons);
+            gbOverlay.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            gbOverlay.Font = new System.Drawing.Font(gbOverlay.Font, System.Drawing.FontStyle.Bold);
 
             // Create the Coercive Healing checkbox and add it to a group box
             var gbCount = new GroupBox { Text = "Calculate", AutoSize = true, Padding = new Padding(3, 14, 3, 3) };
+            var flowCount = new FlowLayoutPanel { AutoSize = true, FlowDirection = FlowDirection.TopDown, Location = new System.Drawing.Point(3, 16) };
             chkCoerciveHealing = new CheckBox { Text = "Coercive Healing", AutoSize = true };
-            gbCount.Controls.Add(chkCoerciveHealing);
+            chkEofRaid2Set = new CheckBox { Text = "Templar EoF Raid 2-Set", AutoSize = true };
+            flowCount.Controls.Add(chkCoerciveHealing);
+            flowCount.Controls.Add(chkEofRaid2Set);
+            gbCount.Controls.Add(flowCount);
 
             // Create the Class selection dropdown and add it to a group box
-            cmbClass = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList };
+            var gbClass = new GroupBox { Text = "Class", AutoSize = true, Padding = new Padding(3, 14, 3, 3) };
+
+            cmbClass = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Location = new System.Drawing.Point(3, 16) };
             cmbClass.Items.AddRange(new object[] { "Defiler", "Inquisitor", "Mystic", "Templar" });
             cmbClass.SelectedItem = "Inquisitor";
 
-            var gbClass = new GroupBox { Text = "Class", AutoSize = true, Padding = new Padding(3, 14, 3, 3) };
             gbClass.Controls.Add(cmbClass);
 
             // Add the group boxes to the flow panel
@@ -219,7 +232,6 @@ namespace ReactiveTracker
             flowPanel.Controls.Add(gbCount);
             flowPanel.Controls.Add(gbClass);
 
-            // Add the player controls to the flow panel
             this.Controls.Add(flowPanel);
 
             // Add the flow panel to the ACT Tab page
@@ -334,24 +346,23 @@ namespace ReactiveTracker
             //}
             Regex rxGroupeReacStart;
             //Switch on cmbClass.selectedItem to determine which regex to use for the single reactive start
-            for (int i = 0; i < _players.Length; i++)
+            switch (cmbClass.SelectedItem.ToString())
             {
-                switch (cmbClass.SelectedItem.ToString())
-                {
-                    case "Inquisitor":
-                        rxGroupeReacStart = new Regex(logTimeStampRegexStr + $"You raise your voice in a Malevolent Diatribe.");
-                        break;
-                    case "Templar":
-                        // Templar: "You demand retribution for any wrongs done to YOU."
-                        rxGroupeReacStart = new Regex(logTimeStampRegexStr + $"You pray devoutly for Holy Intercession.");
-                        break;
-                    default:
-                        return; // Unknown class, do nothing
-                }
-                if (rxGroupeReacStart.IsMatch(line))
+                case "Inquisitor":
+                    rxGroupeReacStart = new Regex(logTimeStampRegexStr + $"You raise your voice in a Malevolent Diatribe.");
+                    break;
+                case "Templar":
+                    // Templar: "You demand retribution for any wrongs done to YOU."
+                    rxGroupeReacStart = new Regex(logTimeStampRegexStr + $"You pray devoutly for Holy Intercession.");
+                    break;
+                default:
+                    return; // Unknown class, do nothing
+            }
+            if (rxGroupeReacStart.IsMatch(line))
+            {
+                for (int i = 0; i < _players.Length; i++)
                 {
                     _reactivePresenter.StartGroup(i, GroupCount);
-                    break;
                 }
             }
         }

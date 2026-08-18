@@ -32,7 +32,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Advanced Combat Tracker">
-      <HintPath>..\..\..\..\Program Files (x86)\Advanced Combat Tracker\Advanced Combat Tracker.exe</HintPath>
+      <HintPath>..\..\..\..\..\Program Files (x86)\Advanced Combat Tracker\Advanced Combat Tracker.exe</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -73,6 +73,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="frmReactiveOverlay.resx">
       <DependentUpon>frmReactiveOverlay.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ReactiveTracker.resx">
+      <DependentUpon>ReactiveTracker.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
