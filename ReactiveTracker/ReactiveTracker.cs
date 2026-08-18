@@ -283,7 +283,7 @@ namespace ReactiveTracker
                         break;
                     case "Templar":
                         // Templar: "You demand retribution for any wrongs done to YOU."
-                        rxSingleReacStart = new Regex(logTimeStampRegexStr + $"You pray for ({ActGlobals.charName}'s|{_players[i].Name}) body and soul.");
+                        rxSingleReacStart = new Regex(logTimeStampRegexStr + $"You pray for ({ActGlobals.charName}|{_players[i].Name})'s body and soul.");
                         break;
                     default:
                         return; // Unknown class, do nothing
