@@ -1,0 +1,61 @@
+name: Build
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Detect global.json
+        id: globaljson
+        shell: pwsh
+        run: |
+          if (Test-Path "global.json") {
+            "exists=true" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          } else {
+            "exists=false" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          }
+
+      - name: Setup .NET SDK (from global.json)
+        if: steps.globaljson.outputs.exists == 'true'
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Restore
+        run: msbuild ACT.slnx /t:Restore /p:Configuration=Release
+
+      - name: Build (Release)
+        run: |
+          msbuild ACT.slnx /p:Configuration=Release /p:Platform="Any CPU" /p:ReferencePath="${{ github.workspace }}\ReactiveTracker\bin\Release" /m
+
+      - name: Discover test projects
+        id: testprojects
+        shell: pwsh
+        run: |
+          $projects = Get-ChildItem -Recurse -Filter *.csproj | Where-Object { $_.Name -match 'Test|Tests' }
+          if ($projects) {
+            "hasTests=true" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+            "projects=$($projects.FullName -join ';')" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          } else {
+            "hasTests=false" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          }
+
+      - name: Run tests (if present)
+        if: steps.testprojects.outputs.hasTests == 'true'
+        shell: pwsh
+        run: |
+          $projects = "${{ steps.testprojects.outputs.projects }}" -split ';' | Where-Object { $_ -ne '' }
+          foreach ($project in $projects) {
+            dotnet test $project --configuration Release --no-build
+          }
