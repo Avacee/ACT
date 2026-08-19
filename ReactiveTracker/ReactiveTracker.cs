@@ -282,10 +282,10 @@ namespace ReactiveTracker
                         rxSingleReacStart = new Regex(logTimeStampRegexStr + $"You demand retribution for any wrongs done to ({ActGlobals.charName}|{_players[i].Name})");
                         break;
                     case "Templar":
-                        // Templar: "You demand retribution for any wrongs done to YOU."
-                        rxSingleReacStart = new Regex(logTimeStampRegexStr + $"You pray for ({ActGlobals.charName}|{_players[i].Name})'s body and soul.");
+                        // Templar: "You pray for NAME's body and soul." or "You pray for NAMES' body and soul."
+                        rxSingleReacStart = new Regex(logTimeStampRegexStr + $"You pray for ({ActGlobals.charName}|{_players[i].Name})'s? body and soul.");
                         break;
-                    default:
+                    default:        
                         return; // Unknown class, do nothing
                 }
                 if (rxSingleReacStart.IsMatch(line))
@@ -362,7 +362,8 @@ namespace ReactiveTracker
             {
                 for (int i = 0; i < _players.Length; i++)
                 {
-                    _reactivePresenter.StartGroup(i, GroupCount);
+                    if (_players[i].Name != playerNameEmpty)
+                        _reactivePresenter.StartGroup(i, GroupCount);
                 }
             }
         }
