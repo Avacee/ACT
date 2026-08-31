@@ -23,5 +23,6 @@ namespace ReactiveTracker.Presenters
         public void UseSingle()            => _model.UseSingle();
         public void UseGroup()             => _model.UseGroup();
         public void Reset()                => _model.Reset();
+        public void ExpireSingle() => _model.ExpireSingle();
     }
 }

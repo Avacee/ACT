@@ -9,6 +9,8 @@ on:
 jobs:
   build:
     runs-on: windows-latest
+    env:
+      ACT_EXE_URL: ${{ vars.ACT_EXE_URL }}
 
     steps:
       - name: Checkout
@@ -36,9 +38,18 @@ jobs:
       - name: Restore
         run: msbuild ACT.slnx /t:Restore /p:Configuration=Release
 
+      - name: Acquire ACT dependency
+        shell: pwsh
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:ACT_EXE_URL)) {
+            throw "Repository variable ACT_EXE_URL is not set."
+          }
+          New-Item -ItemType Directory -Force -Path .deps | Out-Null
+          Invoke-WebRequest -Uri $env:ACT_EXE_URL -OutFile ".deps\Advanced Combat Tracker.exe"
+
       - name: Build (Release)
         run: |
-          msbuild ACT.slnx /p:Configuration=Release /p:Platform="Any CPU" /p:ReferencePath="${{ github.workspace }}\ReactiveTracker\bin\Release" /m
+          msbuild ACT.slnx /p:Configuration=Release /p:Platform="Any CPU" /p:ACTHintPath="${{ github.workspace }}\.deps\Advanced Combat Tracker.exe" /m
 
       - name: Discover test projects
         id: testprojects

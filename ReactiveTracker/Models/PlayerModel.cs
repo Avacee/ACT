@@ -52,7 +52,7 @@ namespace ReactiveTracker.Models
             {
                 _singleSecondsRemaining = value;
                 SingleTimerChanged?.Invoke(this, _singleSecondsRemaining);
-                Debug.WriteLine($"Name: {Name}, SingleSecondsRemaining: {_singleSecondsRemaining}");
+                //Debug.WriteLine($"Name: {Name}, SingleSecondsRemaining: {_singleSecondsRemaining}");
             }
         }
 
@@ -63,7 +63,7 @@ namespace ReactiveTracker.Models
             {
                 _groupSecondsRemaining = value;
                 GroupTimerChanged?.Invoke(this, _groupSecondsRemaining);
-                Debug.WriteLine($"Name: {Name}, GroupSecondsRemaining: {_groupSecondsRemaining}");
+                //Debug.WriteLine($"Name: {Name}, GroupSecondsRemaining: {_groupSecondsRemaining}");
             }
         }
 
@@ -121,6 +121,10 @@ namespace ReactiveTracker.Models
             {
                 SingleCount = 0;
             }
+        }
+        public void ExpireSingle()
+        {
+            SingleCount = 0;
         }
 
         private void OnGroupTick()

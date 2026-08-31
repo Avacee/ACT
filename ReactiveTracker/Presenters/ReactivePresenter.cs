@@ -28,6 +28,7 @@ namespace ReactiveTracker.Presenters
         public void UseSingle(int playerIndex)              => _playerPresenters[playerIndex].UseSingle();
         public void UseGroup(int playerIndex)               => _playerPresenters[playerIndex].UseGroup();
         public void ResetPlayer(int playerIndex)            => _playerPresenters[playerIndex].Reset();
+        public void ExpireSingle(int playerIndex) => _playerPresenters[playerIndex].ExpireSingle();
 
         public void ResetAll()
         {

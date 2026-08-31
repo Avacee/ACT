@@ -13,9 +13,12 @@
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null))
+            if (disposing)
             {
-                components.Dispose();
+                if (components != null)
+                {
+                    components.Dispose();
+                }
             }
             base.Dispose(disposing);
         }
@@ -45,19 +48,18 @@
             this.tableLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
             this.tableLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
             this.tableLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            //this.tableLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
-            //this.tableLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
             this.tableLayout.RowCount = 1;
             this.tableLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            //this.tableLayout.Controls.Add(this.lblSingleCountCaption, 0, 0);
             this.tableLayout.Controls.Add(this.lblSingleCount,        0, 0);
             this.tableLayout.Controls.Add(this.lblSingleTimer,        1, 0);
-            //this.tableLayout.Controls.Add(this.lblGroupCountCaption,  3, 0);
             this.tableLayout.Controls.Add(this.lblGroupCount,         2, 0);
             this.tableLayout.Controls.Add(this.lblGroupTimer,         3, 0);
             this.tableLayout.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayout.Name = "tableLayout";
             this.tableLayout.TabIndex = 0;
+            this.tableLayout.CellBorderStyle = System.Windows.Forms.TableLayoutPanelCellBorderStyle.None;
+            this.tableLayout.Margin = new System.Windows.Forms.Padding(0);
+            this.tableLayout.Padding = new System.Windows.Forms.Padding(0);
             // 
             // lblSingleCountCaption
             // 
@@ -71,42 +73,38 @@
             // lblSingleCount
             // 
             this.lblSingleCount.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblSingleCount.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lblSingleCount.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.lblSingleCount.Text = "0";
             this.lblSingleCount.Name = "lblSingleCount";
             this.lblSingleCount.TabIndex = 1;
+            this.lblSingleCount.Margin = new System.Windows.Forms.Padding(0);
             // 
             // lblSingleTimer
             // 
             this.lblSingleTimer.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblSingleTimer.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lblSingleTimer.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.lblSingleTimer.Text = "";
             this.lblSingleTimer.Name = "lblSingleTimer";
             this.lblSingleTimer.TabIndex = 2;
-            // 
-            // lblGroupCountCaption
-            // 
-            //this.lblGroupCountCaption.Dock = System.Windows.Forms.DockStyle.Fill;
-            //this.lblGroupCountCaption.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            //this.lblGroupCountCaption.Text = "G";
-            //this.lblGroupCountCaption.Name = "lblGroupCountCaption";
-            //this.lblGroupCountCaption.TabIndex = 3;
+            this.lblSingleTimer.Margin = new System.Windows.Forms.Padding(0);
             // 
             // lblGroupCount
             // 
             this.lblGroupCount.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblGroupCount.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lblGroupCount.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.lblGroupCount.Text = "0";
             this.lblGroupCount.Name = "lblGroupCount";
             this.lblGroupCount.TabIndex = 4;
+            this.lblGroupCount.Margin = new System.Windows.Forms.Padding(0);
             // 
             // lblGroupTimer
             // 
             this.lblGroupTimer.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblGroupTimer.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lblGroupTimer.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.lblGroupTimer.Text = "";
             this.lblGroupTimer.Name = "lblGroupTimer";
             this.lblGroupTimer.TabIndex = 5;
+            this.lblGroupTimer.Margin = new System.Windows.Forms.Padding(0);
             // 
             // ctrlReactive
             // 
@@ -116,6 +114,8 @@
             this.Controls.Add(this.tableLayout);
             this.Name = "ctrlPlayer";
             this.Size = new System.Drawing.Size(125, 68);
+            this.Padding = new System.Windows.Forms.Padding(0);
+            this.Margin = new System.Windows.Forms.Padding(0);
             this.tableLayout.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
