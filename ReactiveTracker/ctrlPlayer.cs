@@ -31,9 +31,10 @@ namespace ReactiveTracker
         private const int WM_NCHITTEST   = 0x0084;
         private const int HTTRANSPARENT = -1;
 
-        private readonly Color _inactiveBackColor = Color.Black;
-        private readonly Color _activeBgColor = Color.Green;
-        private readonly Color _warningBgColor = Color.Red;
+        private Color _inactiveBackColor = Color.Black;
+        private Color _activeBgColor = Color.Green;
+        private Color _warningBgColor = Color.Red;
+        private Color _textColor = Color.White;
         private PlayerPresenter _presenter;
         private int _singleCount;
         private int _groupCount;
@@ -41,10 +42,21 @@ namespace ReactiveTracker
         private int _groupSeconds;
         private int _warningCountThreshold = 1;
         private int _warningSecondsThreshold = 5;
+        private Font _scaledFont;
+        private float _scaledFontSize = -1f;
 
         public ctrlPlayer()
         {
             InitializeComponent();
+
+            Resize += (s, e) => ScaleFontToControlSize();
+            lblSingleCount.TextChanged += (s, e) => ScaleFontToControlSize();
+            lblSingleTimer.TextChanged += (s, e) => ScaleFontToControlSize();
+            lblGroupCount.TextChanged += (s, e) => ScaleFontToControlSize();
+            lblGroupTimer.TextChanged += (s, e) => ScaleFontToControlSize();
+            Disposed += (s, e) => _scaledFont?.Dispose();
+
+            ScaleFontToControlSize();
         }
 
         protected override void WndProc(ref Message m)
@@ -67,6 +79,22 @@ namespace ReactiveTracker
         {
             _warningCountThreshold = countThreshold < 0 ? 0 : countThreshold;
             _warningSecondsThreshold = secondsThreshold < 0 ? 0 : secondsThreshold;
+            UpdateAlertState();
+        }
+
+        public void SetAppearance(Color backgroundColor, Color textColor, Color activeColor, Color thresholdColor)
+        {
+            _inactiveBackColor = backgroundColor;
+            _textColor = textColor;
+            _activeBgColor = activeColor;
+            _warningBgColor = thresholdColor;
+
+            lblSingleCount.ForeColor = _textColor;
+            lblSingleTimer.ForeColor = _textColor;
+            lblGroupCount.ForeColor = _textColor;
+            lblGroupTimer.ForeColor = _textColor;
+
+            ScaleFontToControlSize();
             UpdateAlertState();
         }
 
@@ -125,6 +153,56 @@ namespace ReactiveTracker
         {
             if (label.BackColor != color)
                 label.BackColor = color;
+        }
+
+        private void ScaleFontToControlSize()
+        {
+            if (lblSingleCount == null || lblSingleTimer == null || lblGroupCount == null || lblGroupTimer == null)
+                return;
+
+            var labels = new[] { lblSingleCount, lblSingleTimer, lblGroupCount, lblGroupTimer };
+            if (labels.Any(l => l.ClientSize.Width <= 0 || l.ClientSize.Height <= 0))
+                return;
+
+            var baseFont = lblSingleCount.Font;
+            var minSize = 6f;
+            var maxSize = Math.Max(minSize, Math.Min(48f, Height * 0.65f));
+            var bestSize = minSize;
+
+            for (float size = maxSize; size >= minSize; size -= 0.5f)
+            {
+                var fitsAll = true;
+                using (var testFont = new Font(baseFont.FontFamily, size, baseFont.Style, GraphicsUnit.Point))
+                {
+                    for (int i = 0; i < labels.Length; i++)
+                    {
+                        var label = labels[i];
+                        var text = string.IsNullOrEmpty(label.Text) ? "0" : label.Text;
+                        var measured = TextRenderer.MeasureText(text, testFont, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.SingleLine | TextFormatFlags.NoPadding);
+                        if (measured.Width > label.ClientSize.Width || measured.Height > label.ClientSize.Height)
+                        {
+                            fitsAll = false;
+                            break;
+                        }
+                    }
+                }
+
+                if (fitsAll)
+                {
+                    bestSize = size;
+                    break;
+                }
+            }
+
+            if (Math.Abs(bestSize - _scaledFontSize) < 0.1f)
+                return;
+
+            _scaledFont?.Dispose();
+            _scaledFont = new Font(baseFont.FontFamily, bestSize, baseFont.Style, GraphicsUnit.Point);
+            _scaledFontSize = bestSize;
+
+            for (int i = 0; i < labels.Length; i++)
+                labels[i].Font = _scaledFont;
         }
 
         public void StartSingle(int count) => _presenter?.StartSingle(count);
